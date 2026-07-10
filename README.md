@@ -30,7 +30,7 @@ small set of tools for reading and lightly triaging an IMAP mailbox
 | `list_read` | read | Same shape as `list_unread`, but for already-read messages. Useful for context/comparison, and for confirming a `mark_read`/`move_to_folder` action actually took effect. |
 | `search_by_sender` | read | Given a sender address or domain fragment, returns matching messages (UID, subject, date, folder). Supports pagination — see below. |
 | `get_message_body` | read | Given a UID, returns the parsed, decoded body (prefers `text/plain`, falls back to stripped `text/html`). This is the only tool that returns untrusted free-text content — see **Prompt-injection hardening** below. |
-| `mark_read` | write | Given a UID (or list of UIDs), sets the `\Seen` flag. Reversible, low-risk — this is the "lightest" write tool. |
+| `mark_read` | write | Given a UID, sets the `\Seen` flag. Reversible, low-risk — this is the "lightest" write tool. |
 | `move_to_folder` | write | Given a UID and target folder name, moves the message (IMAP `MOVE`, or `COPY`+`STORE \Deleted`+`EXPUNGE` as fallback on servers without `MOVE` support). Used for archiving/filing rather than deleting. |
  
 ### Pagination
