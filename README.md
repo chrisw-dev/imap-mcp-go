@@ -131,11 +131,9 @@ real mailbox at all:
  
 ```bash
 docker run -d --name dovecot-test \
-  -p 143:143 -p 993:993 \
-  -e MAIL_USER=testuser \
-  -e MAIL_PASS=testpass \
-  -e MAILDIR_PATH=/var/mail \
-  dovemark/dovecot   # or any actively-maintained dovecot test image — check current tags
+  -p 143:31143 -p 993:31993 \
+  -e USER_PASSWORD=testpass \
+  dovecot/dovecot:latest   # see Dovecot's official Docker docs for current usage / ports
 ```
  
 Seed it with a handful of test messages (a small script or `swaks` to inject
