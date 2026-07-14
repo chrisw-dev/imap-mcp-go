@@ -87,7 +87,9 @@ func withMailbox[T any](ctx context.Context, c *Client, folder string, fn func(*
 	if err != nil {
 		return zero, err
 	}
-	defer session.Close()
+	defer func() {
+		_ = session.Close()
+	}()
 
 	if err := session.Login(c.cfg.User, c.cfg.Password).Wait(); err != nil {
 		return zero, fmt.Errorf("login to IMAP server: %w", err)
@@ -202,7 +204,9 @@ func (c *Client) appendAuditEntry(entry auditEntry) error {
 	if err != nil {
 		return fmt.Errorf("open audit log: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	encoder := json.NewEncoder(file)
 	if err := encoder.Encode(entry); err != nil {
