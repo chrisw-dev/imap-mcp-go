@@ -70,17 +70,37 @@ imap-mcp-go/
 ```
  
 ## Key dependencies
- 
-- **MCP protocol**: `github.com/mark3labs/mcp-go` (or the official Anthropic
-  Go SDK, if/when it's the recommended path at build time — check current
-  status before committing to one).
+  
+- **MCP protocol**: `github.com/mark3labs/mcp-go`
 - **IMAP client**: `github.com/emersion/go-imap/v2` — actively maintained,
   handles connection, auth, SEARCH, FETCH, MOVE/COPY, STORE.
 - **MIME parsing**: `github.com/emersion/go-message` — same author as
   go-imap, designed to interoperate; handles multipart bodies, encodings,
   charset conversion.
+
+## Development
+
+```bash
+go build ./...
+go test ./...
+go vet ./...
+golangci-lint run
+gofmt -w <paths>
+go test ./internal/imapclient -run TestExtractMessageBodyPrefersPlainText
+```
+
+Run the server over stdio with environment-based configuration:
+
+```bash
+IMAP_HOST=imap.example.com \
+IMAP_PORT=993 \
+IMAP_USER=you@example.com \
+IMAP_PASSWORD=app-password \
+IMAP_TLS=true \
+go run ./cmd/server
+```
 ## Configuration
- 
+  
 All config via environment variables, no hardcoded credentials:
  
 | Variable | Example | Notes |
@@ -91,6 +111,7 @@ All config via environment variables, no hardcoded credentials:
 | `IMAP_PASSWORD` | `...` | **use an app-specific password**, not your main login, if email provider offers one |
 | `IMAP_TLS` | `true` | should always be true against a real mailbox |
 | `IMAP_DEFAULT_FOLDER` | `INBOX` | optional override |
+| `IMAP_AUDIT_LOG` | `imap-mcp-audit.log` | optional path for the local mutation audit log |
  
 ## Prompt-injection hardening
  
@@ -159,7 +180,7 @@ Once the tool set is verified against a test server:
 1. Point at the real mailbox, but **only register the read tools
    first** (`list_unread`, `list_read`, `search_by_sender`,
    `get_message_body`). Confirm behaviour against the real backlog before
-   the write tools are even compiled in.
+   using the write tools against the real mailbox.
 2. Add `mark_read` and test on a small, low-stakes folder or a handful of
    messages you've already read manually, so you can verify the flag change
    without risking anything important.
@@ -180,9 +201,7 @@ Once the tool set is verified against a test server:
   confirm framing/mitigation actually works before ever pointing the server
   at a live mailbox.
 ## Open questions to resolve before v1
- 
-- `mcp-go` vs. official Anthropic Go SDK — check current recommendation at
-  build time rather than assuming.
+  
 - Folder name handling — IMAP folder separators and naming vary by server
   (`.` vs `/`, `INBOX.Archive` vs `Archive`); specific naming should be
   confirmed against a real account listing (`LIST` command) rather than
